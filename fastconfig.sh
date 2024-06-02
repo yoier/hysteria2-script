@@ -36,6 +36,7 @@ email=$(echo $domain | sed 's/\.//g')@gmail.com
 #@sharklasers.com
 LOG "Input port: (default 443)"
 read port
+port=${port:-443}
 get_ip
 LOG "Enter Password"
 read password
@@ -51,12 +52,17 @@ xx="quic:
   maxIncomingStreams: 1024
   disablePathMTUDiscovery: false"
 # 将发送、接收两个缓冲区都设置为 16 MB
+cat /etc/sysctl.conf|grep 16777216
+if [[ $? == 1 ]];then
 sysctl -w net.core.rmem_max=16777216
 sysctl -w net.core.wmem_max=16777216
 cat << EOF >> /etc/sysctl.conf
 net.core.rmem_max=16777216
 net.core.wmem_max=16777216
 EOF
+else
+LOG r "Has same ruls"
+fi
 fi
 LOG "Masquerade method\n\t1. proxy(bing)\n\t2. file"
 read x2
@@ -66,10 +72,10 @@ cd /root
 mkdir site_back
 mkdir mv_tmp
 cd mv_tmp
-curl -JLo html.zip https://github.com/yoier/d4099fef0beb59b6/archive/refs/tags/rls.zip
+curl -JLo html.zip https://github.com/yoier/hysteria2-script/archive/refs/tags/0.0.1.zip
 unzip html.zip
-cd hysteria2-scripts
-mv -f /var/www/html/* /root/site_tp
+cd hysteria2-script*
+mv -f /var/www/html/* /root/site_back
 mv -f html/* /var/www/html
 cd /root
 rm -rf mv_tmp
@@ -94,8 +100,13 @@ fi
 LOG "Port Hopping(num:num)"
 read scope
 if [[ $scope != "" ]];then
+iptables -t nat -L|grep "$scope"
+if [[ $? == 1 ]];then
 iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port
 sed -i "/^exit 0/i\iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" /etc/rc.local
+else
+LOG r "Has same scope"
+fi
 fi
 
 cat << EOF > /etc/hysteria/config.yaml
@@ -116,3 +127,16 @@ $masquerade
 
 EOF
 
+crontab -l|grep "https://get.hy2.sh/"
+if [[ $? == 1 ]];then
+(crontab -l; echo "0 6 * * 1 bash <(curl -fsSL https://get.hy2.sh/)") | crontab -
+else
+LOG r "Has same cron"
+fi
+
+LOG g "Start hysteria?(y/n)"
+read x3
+if [[ $x3 == "y" ]];then
+systemctl enable hysteria-server.service
+systemctl restart hysteria-server.service
+fi
