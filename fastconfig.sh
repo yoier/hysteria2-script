@@ -8,7 +8,7 @@ LOG() {
             echo -e "\033[0;32m $2 \033[0m"
             ;;
         *)
-            echo -e "\033[0;33m $1 \033[0m"
+            echo -e "\033[0;34m $1 \033[0m"
             ;;
     esac
 }
@@ -18,15 +18,13 @@ get_ip() {
     ip=`ifconfig $eth| grep -Eo "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -Eo "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"`
     ethnum=`ifconfig | grep -Eo ".*: " | grep -Eo "\w*" | grep -v -c lo`
     ethnum=$((ethnum))
-    LOG "YourIP: $ip"
-    #echo $ethnum
-    #echo -e "all_ipaddress:\n"$ip
-    use_ip=""
     if [ $ethnum != 1 ];then
             LOG g "Input IP"
-            read use_ip
+            read ip
             eth=`ifconfig | grep -B1 "inet $ip" | awk '$1!="inet" && $1!="--" {print $1}'|cut -d ":" -f1`
     fi
+    LOG "YourIP: $ip"
+    LOG "Yoereth: $eth"
 }
 
 bash <(curl -fsSL https://get.hy2.sh/)
@@ -42,7 +40,7 @@ LOG "Enter Password"
 read password
 LOG "QUIC config?(y(default)/n)"
 read x1
-if [[ $x1 == "y" ]];then
+if [[ $x1 != "n" ]];then
 xx="quic:
   initStreamReceiveWindow: 26843545 
   maxStreamReceiveWindow: 26843545 
@@ -69,8 +67,11 @@ read x2
 if [[ $x2 == "2" ]];then
 
 cd /root
+rm -rf site_back
+rm -rf mv_tmp
 mkdir site_back
 mkdir mv_tmp
+mkdir -p /var/www/html
 cd mv_tmp
 curl -JLo html.zip https://github.com/yoier/hysteria2-script/archive/refs/tags/0.0.1.zip
 unzip html.zip
