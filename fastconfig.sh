@@ -26,7 +26,8 @@ get_ip() {
     LOG "YourIP: $ip"
     LOG "Yoereth: $eth"
 }
-
+apt update
+apt install cron ufw unzip curl
 bash <(curl -fsSL https://get.hy2.sh/)
 LOG "Enter domain name: (Use Acme)"
 read domain
@@ -35,13 +36,14 @@ email=$(echo $domain | sed 's/\.//g')@gmail.com
 LOG "Input port: (default 443)"
 read port
 port=${port:-443}
+ufw allow $port
 get_ip
 LOG "Enter Password"
 read password
 LOG "QUIC config?(y(default)/n)"
 read x1
 if [[ $x1 != "n" ]];then
-xx="quic:
+quic="quic:
   initStreamReceiveWindow: 26843545 
   maxStreamReceiveWindow: 26843545 
   initConnReceiveWindow: 67108864 
@@ -58,11 +60,12 @@ cat << EOF >> /etc/sysctl.conf
 net.core.rmem_max=16777216
 net.core.wmem_max=16777216
 EOF
+cat /etc/sysctl.conf|grep 16777216
 else
 LOG r "Has same ruls"
 fi
 fi
-LOG "Masquerade method\n\t1. proxy(bing)\n\t2. file"
+LOG "Masquerade method\n\t1. proxy(bing,default)\n\t2. file"
 read x2
 if [[ $x2 == "2" ]];then
 
@@ -82,7 +85,8 @@ cd /root
 rm -rf mv_tmp
 #可更换mv内容html
 ls /var/www/html
-
+ufw allow 80
+ufw allow 443
 masquerade="masquerade:
   listenHTTP: :80
   listenHTTPS: :443
@@ -98,13 +102,16 @@ masquerade="masquerade:
     rewriteHost: true"
 fi
 
-LOG "Port Hopping(num:num)"
+LOG "Port Hopping(num:num);null mean off"
 read scope
 if [[ $scope != "" ]];then
 iptables -t nat -L|grep "$scope"
 if [[ $? == 1 ]];then
+ufw allow $scope/udp
 iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port
 sed -i "/^exit 0/i\iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" /etc/rc.local
+iptables -t nat -L|grep "$scope"
+cat /etc/rc.local|grep "$scope"
 else
 LOG r "Has same scope"
 fi
@@ -122,7 +129,7 @@ auth:
   type: password
   password: $password
 
-$xx
+$quic
 
 $masquerade
 
@@ -130,14 +137,20 @@ EOF
 
 crontab -l|grep "https://get.hy2.sh/"
 if [[ $? == 1 ]];then
+LOG g "crontab:"
 (crontab -l; echo "0 6 * * 1 bash <(curl -fsSL https://get.hy2.sh/)") | crontab -
+crontab -l|grep "https://get.hy2.sh/"
 else
 LOG r "Has same cron"
 fi
 
-LOG g "Start hysteria?(y/n)"
+LOG g "Start hysteria?(y/n(default))"
 read x3
 if [[ $x3 == "y" ]];then
 systemctl enable hysteria-server.service
 systemctl restart hysteria-server.service
 fi
+
+LOG g "config:"
+cat /etc/hysteria/config.yaml
+LOG g "\n\tscope=$scope\n\t"
