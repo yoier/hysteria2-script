@@ -110,6 +110,9 @@ if [[ $? == 1 ]];then
 ufw allow $scope/udp
 iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port
 sed -i "/^exit 0/i\iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" /etc/rc.local
+if [[ $? == 1 ]];then
+echo "iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" >> /etc/rc.local
+fi
 iptables -t nat -L|grep "$scope"
 cat /etc/rc.local|grep "$scope"
 else
