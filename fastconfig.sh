@@ -27,7 +27,7 @@ get_ip() {
     LOG "Yoereth: $eth"
 }
 apt update
-apt install cron ufw unzip curl
+apt install cron ufw unzip curl net-tools
 bash <(curl -fsSL https://get.hy2.sh/)
 LOG "Enter domain name: (Use Acme)"
 read domain
