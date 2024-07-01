@@ -109,9 +109,11 @@ iptables -t nat -L|grep "$scope"
 if [[ $? == 1 ]];then
 ufw allow $scope/udp
 iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port
-sed -i "/^exit 0/i\iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" /etc/rc.local
+cat /etc/rc.local|grep "exit 0"
 if [[ $? == 1 ]];then
 echo "iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" >> /etc/rc.local
+else
+sed -i "/^exit 0/i\iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" /etc/rc.local
 fi
 iptables -t nat -L|grep "$scope"
 cat /etc/rc.local|grep "$scope"
@@ -157,3 +159,10 @@ fi
 LOG g "config:"
 cat /etc/hysteria/config.yaml
 LOG g "\n\tscope=$scope\n\t"
+
+LOG g "Enable ufw?(y/n(default))"
+read x4
+if [[ $x4 == "y" ]];then
+ufw enable
+ufw status
+fi
