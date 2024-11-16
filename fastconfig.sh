@@ -44,10 +44,10 @@ LOG "QUIC config?(y(default)/n)"
 read x1
 if [[ $x1 != "n" ]];then
 quic="quic:
-  initStreamReceiveWindow: 26843545 
-  maxStreamReceiveWindow: 26843545 
-  initConnReceiveWindow: 67108864 
-  maxConnReceiveWindow: 67108864
+  initStreamReceiveWindow: 16777216
+  maxStreamReceiveWindow: 16777216
+  initConnReceiveWindow: 41943040
+  maxConnReceiveWindow: 41943040
   maxIdleTimeout: 60s 
   maxIncomingStreams: 1024
   disablePathMTUDiscovery: false"
