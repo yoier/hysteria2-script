@@ -48,7 +48,7 @@ quic="quic:
   maxStreamReceiveWindow: 26843545 
   initConnReceiveWindow: 67108864 
   maxConnReceiveWindow: 67108864
-  maxIdleTimeout: 30s 
+  maxIdleTimeout: 60s 
   maxIncomingStreams: 1024
   disablePathMTUDiscovery: false"
 # 将发送、接收两个缓冲区都设置为 16 MB
