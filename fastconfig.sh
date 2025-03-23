@@ -140,13 +140,21 @@ $masquerade
 
 EOF
 
-crontab -l|grep "https://get.hy2.sh/"
-if [[ $? == 1 ]];then
-LOG g "crontab:"
-(crontab -l; echo "0 6 * * 1 bash <(curl -fsSL https://get.hy2.sh/)") | crontab -
-crontab -l|grep "https://get.hy2.sh/"
+echo "auto update?[y/n]"
+read x9
+if [[ $x9 == "y" ]];then
+if [ -e "/usr/local/share/hyupgd.sh" ]; then
+    echo "has cof"
 else
-LOG r "Has same cron"
+    echo "config..."
+    cat >/usr/local/share/hyupgd.sh<<EOF
+#!/bin/bash
+bash <(curl -fsSL https://get.hy2.sh/)
+EOF
+chmod +x /usr/local/share/hyupgd.sh
+(crontab -l; echo "0 5 * * 2 /usr/local/share/hyupgd.sh") | crontab -
+crontab -l
+fi
 fi
 
 LOG g "Start hysteria?(y/n(default))"
