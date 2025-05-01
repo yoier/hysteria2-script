@@ -157,6 +157,19 @@ crontab -l
 fi
 fi
 
+LOG g "Set priority?(y/n(default))"
+read x5
+if [[ $x5 == "y" ]];then
+mkdir -p /etc/systemd/system/hysteria-server.service.d
+cat << EOF > /etc/systemd/system/hysteria-server.service.d/priority.conf
+[Service]
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=99
+EOF
+systemctl daemon-reload
+systemctl restart hysteria-server.service
+fi
+
 LOG g "Start hysteria?(y/n(default))"
 read x3
 if [[ $x3 == "y" ]];then
