@@ -115,6 +115,9 @@ echo "iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-d
 else
 sed -i "/^exit 0/i\iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" /etc/rc.local
 fi
+if ! head -n 1 "/etc/rc.local" | grep -q '^#!'; then
+    sed -i '1i #!/bin/bash' "/etc/rc.local"
+fi
 iptables -t nat -L|grep "$scope"
 cat /etc/rc.local|grep "$scope"
 else
