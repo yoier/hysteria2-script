@@ -56,9 +56,11 @@ cat /etc/sysctl.conf|grep 16777216
 if [[ $? == 1 ]];then
 sysctl -w net.core.rmem_max=16777216
 sysctl -w net.core.wmem_max=16777216
+sysctl -w net.ipv4.tcp_fastopen=3
 cat << EOF >> /etc/sysctl.conf
 net.core.rmem_max=16777216
 net.core.wmem_max=16777216
+net.ipv4.tcp_fastopen=3
 EOF
 cat /etc/sysctl.conf|grep 16777216
 else
@@ -138,6 +140,13 @@ $quic
 
 $masquerade
 
+outbounds:
+  - name: drt
+    type: direct
+    direct:
+      mode: 4
+      bindIPv4: $ip
+      fastOpen: true
 EOF
 
 echo "auto update?[y/n]"
