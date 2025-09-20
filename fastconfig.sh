@@ -117,6 +117,9 @@ echo "iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-d
 else
 sed -i "/^exit 0/i\iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" /etc/rc.local
 fi
+if ! head -n 1 "/etc/rc.local" | grep -q '^#!'; then
+    sed -i '1i #!/bin/bash' "/etc/rc.local"
+fi
 iptables -t nat -L|grep "$scope"
 cat /etc/rc.local|grep "$scope"
 else
@@ -164,6 +167,19 @@ chmod +x /usr/local/share/hyupgd.sh
 (crontab -l; echo "0 5 * * 2 /usr/local/share/hyupgd.sh") | crontab -
 crontab -l
 fi
+fi
+
+LOG g "Set priority?(y/n(default))"
+read x5
+if [[ $x5 == "y" ]];then
+mkdir -p /etc/systemd/system/hysteria-server.service.d
+cat << EOF > /etc/systemd/system/hysteria-server.service.d/priority.conf
+[Service]
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=99
+EOF
+systemctl daemon-reload
+systemctl restart hysteria-server.service
 fi
 
 LOG g "Start hysteria?(y/n(default))"
