@@ -110,12 +110,12 @@ if [[ $scope != "" ]];then
 iptables -t nat -L|grep "$scope"
 if [[ $? == 1 ]];then
 ufw allow $scope/udp
-iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port
+iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j REDIRECT --to-ports $port
 cat /etc/rc.local|grep "exit 0"
 if [[ $? == 1 ]];then
-echo "iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" >> /etc/rc.local
+echo "iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j REDIRECT --to-ports $port" >> /etc/rc.local
 else
-sed -i "/^exit 0/i\iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j DNAT --to-destination :$port" /etc/rc.local
+sed -i "/^exit 0/i\iptables -t nat -A PREROUTING -i $eth -p udp --dport $scope -j REDIRECT --to-ports $port" /etc/rc.local
 fi
 if ! head -n 1 "/etc/rc.local" | grep -q '^#!'; then
     sed -i '1i #!/bin/bash' "/etc/rc.local"
