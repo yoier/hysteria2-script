@@ -1,4 +1,4 @@
-curl -O https://github.com/pymumu/smartdns/releases/download/Release48.1/smartdns.1.2026.06.07-1153.x86_64-debian-all.deb
+curl -L -O https://github.com/pymumu/smartdns/releases/download/Release48.1/smartdns.1.2026.06.07-1153.x86_64-debian-all.deb
 dpkg -i smartdns*.deb
 cat << EOF > /etc/smartdns/smartdns.conf
 bind-tcp 127.0.0.1:53
