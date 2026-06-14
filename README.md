@@ -31,8 +31,3 @@ bash <(curl -Ls https://raw.githubusercontent.com/yoier/hysteria2-script/main/fa
   "server": "$ip:$port,$scope"//scope将中间的':'改为'-'
 }
 ```
-
-安装smartdns
-```
-bash <(curl -Ls https://raw.githubusercontent.com/yoier/hysteria2-script/main/install.sh)
-```
