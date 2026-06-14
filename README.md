@@ -32,3 +32,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/yoier/hysteria2-script/main/fa
 }
 ```
 
+安装smartdns
+```
+bash <(curl -Ls https://raw.githubusercontent.com/yoier/hysteria2-script/main/fastconfig.sh)
+```
